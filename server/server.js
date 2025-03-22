@@ -30,12 +30,11 @@ const setupDatabase = async () => {
     // First try to connect
     await connectDB();
     
-    // For testing/debugging only - don't force sync in production normally
-    // Comment this out after first deployment
-    if (process.env.RAILWAY_SERVICE_ID && process.env.FORCE_SYNC === 'true') {
+    // Only sync models (not force sync!) in development
+    if (process.env.NODE_ENV === 'development') {
       const { sequelize } = require('./config/db');
-      console.log('Forcing sync of database tables...');
-      await sequelize.sync({ force: true });
+      console.log('Syncing database tables in development mode...');
+      await sequelize.sync({ alter: true });
       console.log('Database tables synchronized successfully');
     }
   } catch (error) {
