@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import PrivateRoute from './components/routing/PrivateRoute';
@@ -40,12 +39,11 @@ const theme = createTheme({
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || "891066225807-70akm0jki2q1s5hp0hg2lsntrllddpae.apps.googleusercontent.com"}>
-      <AuthProvider>
-        <UserProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Routes>
+    <AuthProvider>
+      <UserProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -105,7 +103,6 @@ function App() {
         </ThemeProvider>
       </UserProvider>
     </AuthProvider>
-    </GoogleOAuthProvider>
   );
 }
 

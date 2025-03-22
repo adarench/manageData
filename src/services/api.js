@@ -30,16 +30,6 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const googleLogin = async (googleData) => {
-  try {
-    const response = await api.post('/users/google', googleData);
-    return response.data;
-  } catch (error) {
-    console.error('Google login error:', error.response?.data || error.message);
-    throw error;
-  }
-};
-
 export const logoutUser = async () => {
   const response = await api.post('/users/logout');
   return response.data;

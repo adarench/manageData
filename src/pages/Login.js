@@ -8,18 +8,16 @@ import {
   Paper,
   Link,
   Alert,
-  CircularProgress,
-  Divider
+  CircularProgress
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
-  const { login, loginWithGoogle, loading, error } = useContext(AuthContext);
+  const { login, loading, error } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -38,31 +36,6 @@ const Login = () => {
       console.error('Login error:', err);
       // Error is handled in AuthContext
     }
-  };
-  
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      console.log('Google credential response:', credentialResponse);
-      
-      if (!credentialResponse.credential) {
-        throw new Error('No credential received from Google');
-      }
-      
-      const googleUser = await loginWithGoogle({
-        credential: credentialResponse.credential
-      });
-      
-      console.log('Google login successful:', googleUser);
-      navigate('/');
-    } catch (err) {
-      console.error('Google login error:', err);
-      setLocalError('Google login failed: ' + (err.message || 'Unknown error'));
-      // Error is also handled in AuthContext
-    }
-  };
-  
-  const handleGoogleError = () => {
-    setLocalError('Google login failed. Please try again or use email login.');
   };
 
   return (
@@ -123,16 +96,6 @@ const Login = () => {
             >
               {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
-            
-            <Divider sx={{ my: 3 }}>or</Divider>
-            
-            <Box display="flex" justifyContent="center" mt={2} mb={2}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap
-              />
-            </Box>
             
             <Box display="flex" justifyContent="center" mt={2}>
               <Link component={RouterLink} to="/register" variant="body2">
