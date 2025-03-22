@@ -4,12 +4,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --mode development --open",
+    "start": "node server/server.js",
     "build": "webpack --mode production",
     "server": "nodemon server/server.js",
     "client": "webpack serve --mode development --open",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "init-db": "node server/scripts/initDb.js"
   },
   "keywords": [],
   "author": "",

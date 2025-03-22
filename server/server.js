@@ -30,12 +30,19 @@ const setupDatabase = async () => {
     // First try to connect
     await connectDB();
     
-    // Only sync models (not force sync!) in development
-    if (process.env.NODE_ENV === 'development') {
-      const { sequelize } = require('./config/db');
-      console.log('Syncing database tables in development mode...');
-      await sequelize.sync({ alter: true });
-      console.log('Database tables synchronized successfully');
+    // Get sequelize instance
+    const { sequelize } = require('./config/db');
+    
+    // Check if database needs initialization
+    try {
+      // Try to count users to see if table exists
+      const [results] = await sequelize.query("SELECT COUNT(*) FROM users");
+      console.log('User table exists, found users:', results[0].count);
+    } catch (err) {
+      // If error, likely table doesn't exist, so create tables
+      console.log('Database tables may not exist, creating tables...');
+      await sequelize.sync();
+      console.log('Database tables created');
     }
   } catch (error) {
     console.error('Database setup failed:', error);

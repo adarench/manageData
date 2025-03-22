@@ -18,23 +18,28 @@ const generateToken = (id) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = async (req, res) => {
-  const { displayName, email, password, weeklyQuota, personalGoals } = req.body;
+  try {
+    console.log('Registration request received:', req.body);
+    const { displayName, email, password, weeklyQuota, personalGoals } = req.body;
 
-  const userExists = await User.findOne({ where: { email } });
+    const userExists = await User.findOne({ where: { email } });
 
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
+    if (userExists) {
+      console.log('User already exists with email:', email);
+      res.status(400);
+      throw new Error('User already exists');
+    }
 
-  const user = await User.create({
-    displayName,
-    email,
-    password,
-    weeklyQuota: weeklyQuota || 1,
-    personalGoals: personalGoals || [],
-    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff`
-  });
+    console.log('Creating new user with email:', email);
+    const user = await User.create({
+      displayName,
+      email,
+      password,
+      weeklyQuota: weeklyQuota || 1,
+      personalGoals: personalGoals || [],
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff`
+    });
+    console.log('User created successfully:', user.id);
 
   if (user) {
     const token = generateToken(user.id);
@@ -63,42 +68,67 @@ const registerUser = async (req, res) => {
     res.status(400);
     throw new Error('Invalid user data');
   }
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      message: 'Failed to register user', 
+      error: error.message
+    });
+  }
 };
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    console.log('Login attempt received for:', req.body.email);
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email } });
 
-  if (user && (await user.matchPassword(password))) {
-    const token = generateToken(user.id);
+    if (!user) {
+      console.log('Login failed: User not found:', email);
+      res.status(401).json({ message: 'Invalid email or password' });
+      return;
+    }
 
-    // Set JWT as an HTTP-Only cookie
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    const isMatch = await user.matchPassword(password);
+    console.log('Password match result:', isMatch);
+
+    if (user && isMatch) {
+      const token = generateToken(user.id);
+
+      // Set JWT as an HTTP-Only cookie
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
+      res.json({
+        id: user.id,
+        displayName: user.displayName,
+        email: user.email,
+        weeklyQuota: user.weeklyQuota,
+        personalGoals: user.personalGoals,
+        avatar: user.avatar,
+        dateCount: user.dateCount,
+        newNumbersCount: user.newNumbersCount,
+        completionPercentage: user.completionPercentage,
+        isAnonymous: user.isAnonymous
+      });
+    } else {
+      console.log('Login failed: Invalid password for:', email);
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      message: 'Login failed', 
+      error: error.message 
     });
-
-    res.json({
-      id: user.id,
-      displayName: user.displayName,
-      email: user.email,
-      weeklyQuota: user.weeklyQuota,
-      personalGoals: user.personalGoals,
-      avatar: user.avatar,
-      dateCount: user.dateCount,
-      newNumbersCount: user.newNumbersCount,
-      completionPercentage: user.completionPercentage,
-      isAnonymous: user.isAnonymous
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
   }
 };
 
