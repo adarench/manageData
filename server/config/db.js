@@ -1,12 +1,18 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+// Print database connection debug info
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+
+// Always use SSL in Railway environment
 const sequelize = new Sequelize(
   process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/dating_app',
   {
     dialect: 'postgres',
     dialectOptions: {
-      ssl: process.env.NODE_ENV === 'production' ? {
+      // Always use SSL when DATABASE_URL is provided (Railway case)
+      ssl: process.env.DATABASE_URL ? {
         require: true,
         rejectUnauthorized: false
       } : false

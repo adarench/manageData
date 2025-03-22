@@ -17,6 +17,13 @@ const contactRoutes = require('./routes/contactRoutes');
 // Environment variables
 dotenv.config();
 
+// Force production mode for Railway
+if (process.env.RAILWAY_SERVICE_ID) {
+  process.env.NODE_ENV = 'production';
+}
+
+console.log(`Setting up server in ${process.env.NODE_ENV || 'development'} mode`);
+
 // Connect to database
 connectDB();
 
