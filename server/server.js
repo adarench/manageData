@@ -38,11 +38,43 @@ const setupDatabase = async () => {
       // Try to count users to see if table exists
       const [results] = await sequelize.query("SELECT COUNT(*) FROM users");
       console.log('User table exists, found users:', results[0].count);
+      
+      // If no users, create a test admin user
+      if (results[0].count == 0) {
+        console.log('No users found, creating test admin user...');
+        const { User } = require('./models');
+        await User.create({
+          displayName: 'Admin',
+          email: 'admin@example.com',
+          password: 'password123',
+          weeklyQuota: 2,
+          personalGoals: ['Improve dating life', 'Meet new people'],
+          avatar: 'https://ui-avatars.com/api/?name=Admin&background=random&color=fff'
+        });
+        console.log('Test admin user created successfully:');
+        console.log('Email: admin@example.com');
+        console.log('Password: password123');
+      }
     } catch (err) {
       // If error, likely table doesn't exist, so create tables
       console.log('Database tables may not exist, creating tables...');
       await sequelize.sync();
       console.log('Database tables created');
+      
+      // Create a test admin user
+      console.log('Creating test admin user...');
+      const { User } = require('./models');
+      await User.create({
+        displayName: 'Admin',
+        email: 'admin@example.com',
+        password: 'password123',
+        weeklyQuota: 2,
+        personalGoals: ['Improve dating life', 'Meet new people'],
+        avatar: 'https://ui-avatars.com/api/?name=Admin&background=random&color=fff'
+      });
+      console.log('Test admin user created successfully:');
+      console.log('Email: admin@example.com');
+      console.log('Password: password123');
     }
   } catch (error) {
     console.error('Database setup failed:', error);
