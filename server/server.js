@@ -30,10 +30,11 @@ const setupDatabase = async () => {
     // First try to connect
     await connectDB();
     
-    // Force sync tables in production for first deployment
-    if (process.env.RAILWAY_SERVICE_ID) {
+    // For testing/debugging only - don't force sync in production normally
+    // Comment this out after first deployment
+    if (process.env.RAILWAY_SERVICE_ID && process.env.FORCE_SYNC === 'true') {
       const { sequelize } = require('./config/db');
-      console.log('Forcing sync of database tables for first deployment...');
+      console.log('Forcing sync of database tables...');
       await sequelize.sync({ force: true });
       console.log('Database tables synchronized successfully');
     }
@@ -61,7 +62,7 @@ app.use(helmet({
 
 // Enable CORS
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' ? true : 'http://localhost:3000',
   credentials: true,
 }));
 

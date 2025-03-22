@@ -5,29 +5,24 @@ const { Op } = require('sequelize');
 // @route   POST /api/dates
 // @access  Private
 const addDate = async (req, res) => {
-  console.log('Received date data:', JSON.stringify(req.body));
-  
-  // Extract fields, handling both formats
-  const { 
-    contactId,
-    contactName,
-    name,  // Support old field name
-    dateTime,
-    date,  // Support old field name
-    location, 
-    notes, 
-    rating, 
-    vibeSliders,
-    status,
-    activities,
-    redFlags,
-    followUpReminder,
-    isNewNumber
-  } = req.body;
-  
-  console.log('Activities (raw):', activities);
-  console.log('Activities type:', typeof activities);
-  console.log('Activities is array:', Array.isArray(activities));
+  try {
+    // Extract fields, handling both formats
+    const { 
+      contactId,
+      contactName,
+      name,  // Support old field name
+      dateTime,
+      date,  // Support old field name
+      location, 
+      notes, 
+      rating, 
+      vibeSliders,
+      status,
+      activities,
+      redFlags,
+      followUpReminder,
+      isNewNumber
+    } = req.body;
   
   // Normalize field names
   const normalizedContactName = contactName || name;
@@ -169,6 +164,10 @@ const addDate = async (req, res) => {
   await user.save();
 
   res.status(201).json(newDate);
+  } catch (error) {
+    console.error('Error adding date:', error);
+    res.status(500).json({ message: error.message || 'Server error while creating date' });
+  }
 };
 
 // @desc    Get user's dates

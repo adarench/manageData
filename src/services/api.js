@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+// In production, use the relative path
+// This ensures requests go to the same domain where the frontend is served
 const baseURL = process.env.NODE_ENV === 'production' 
   ? '/api' 
   : 'http://localhost:5000/api';
@@ -19,8 +21,13 @@ export const registerUser = async (userData) => {
 };
 
 export const loginUser = async (credentials) => {
-  const response = await api.post('/users/login', credentials);
-  return response.data;
+  try {
+    const response = await api.post('/users/login', credentials);
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const logoutUser = async () => {
