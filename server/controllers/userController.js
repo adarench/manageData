@@ -2,7 +2,10 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { User } = require('../models');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// Use a default client ID if environment variable is not set
+const googleClientId = process.env.GOOGLE_CLIENT_ID || '891066225807-70akm0jki2q1s5hp0hg2lsntrllddpae.apps.googleusercontent.com';
+console.log('Using Google Client ID:', googleClientId);
+const client = new OAuth2Client(googleClientId);
 
 // Generate JWT
 const generateToken = (id) => {
@@ -222,11 +225,13 @@ const googleLogin = async (req, res) => {
   const { credential } = req.body;
 
   try {
+    console.log('Attempting to verify Google token');
     // Verify the Google token
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
+      audience: googleClientId
     });
+    console.log('Google token verified successfully');
 
     // Get Google user data
     const payload = ticket.getPayload();

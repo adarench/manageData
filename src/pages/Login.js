@@ -42,16 +42,22 @@ const Login = () => {
   
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
+      console.log('Google credential response:', credentialResponse);
+      
+      if (!credentialResponse.credential) {
+        throw new Error('No credential received from Google');
+      }
+      
       const googleUser = await loginWithGoogle({
-        credential: credentialResponse.credential,
-        clientId: credentialResponse.clientId
+        credential: credentialResponse.credential
       });
       
       console.log('Google login successful:', googleUser);
       navigate('/');
     } catch (err) {
       console.error('Google login error:', err);
-      // Error is handled in AuthContext
+      setLocalError('Google login failed: ' + (err.message || 'Unknown error'));
+      // Error is also handled in AuthContext
     }
   };
   

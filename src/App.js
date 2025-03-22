@@ -40,7 +40,7 @@ const theme = createTheme({
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || "891066225807-70akm0jki2q1s5hp0hg2lsntrllddpae.apps.googleusercontent.com"}>
       <AuthProvider>
         <UserProvider>
           <ThemeProvider theme={theme}>
