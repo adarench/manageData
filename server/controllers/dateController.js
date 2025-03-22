@@ -5,6 +5,8 @@ const { Op } = require('sequelize');
 // @route   POST /api/dates
 // @access  Private
 const addDate = async (req, res) => {
+  console.log('Received date data:', JSON.stringify(req.body));
+  
   // Extract fields, handling both formats
   const { 
     contactId,
@@ -22,6 +24,10 @@ const addDate = async (req, res) => {
     followUpReminder,
     isNewNumber
   } = req.body;
+  
+  console.log('Activities (raw):', activities);
+  console.log('Activities type:', typeof activities);
+  console.log('Activities is array:', Array.isArray(activities));
   
   // Normalize field names
   const normalizedContactName = contactName || name;
@@ -70,6 +76,12 @@ const addDate = async (req, res) => {
 
   const dateNumber = previousDates + 1;
 
+  // Ensure activities and redFlags are properly formatted as arrays
+  const formattedActivities = Array.isArray(activities) ? activities : 
+                             (activities ? [activities] : []);
+  const formattedRedFlags = Array.isArray(redFlags) ? redFlags : 
+                           (redFlags ? [redFlags] : []);
+  
   // Create the date
   const newDate = await Date.create({
     contactId: contact.id,
@@ -80,8 +92,8 @@ const addDate = async (req, res) => {
     rating,
     vibeSliders,
     status: status || 'upcoming',
-    activities: activities || [],
-    redFlags: redFlags || [],
+    activities: formattedActivities,
+    redFlags: formattedRedFlags,
     followUpReminder,
     dateNumber,
     isNewNumber: isNewNumber || dateNumber === 1

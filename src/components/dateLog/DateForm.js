@@ -98,7 +98,12 @@ const DateForm = ({ onSubmit, initialData = null }) => {
   };
 
   const handleCustomActivity = (e, values) => {
-    setFormData({ ...formData, activities: values });
+    // Ensure values is always an array, even if it's null or undefined
+    const safeValues = Array.isArray(values) ? values : [];
+    console.log('Activity values received:', values);
+    console.log('Safe activity values:', safeValues);
+    
+    setFormData({ ...formData, activities: safeValues });
     if (errors.activities) {
       setErrors({ ...errors, activities: '' });
     }
@@ -118,6 +123,10 @@ const DateForm = ({ onSubmit, initialData = null }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
+      console.log('Submitting form data:', formData);
+      console.log('Activities:', formData.activities);
+      console.log('Activities type:', typeof formData.activities);
+      console.log('Activities is array:', Array.isArray(formData.activities));
       onSubmit(formData);
     }
   };
