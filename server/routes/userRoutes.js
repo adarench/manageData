@@ -6,13 +6,15 @@ const {
   logoutUser, 
   getUserProfile, 
   updateUserProfile,
-  getLeaderboard
+  getLeaderboard,
+  googleLogin
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Public routes
 router.post('/', registerUser);
 router.post('/login', loginUser);
+router.post('/google', googleLogin);
 router.post('/logout', logoutUser);
 
 // Protected routes

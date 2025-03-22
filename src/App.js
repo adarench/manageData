@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import PrivateRoute from './components/routing/PrivateRoute';
@@ -39,17 +40,18 @@ const theme = createTheme({
 
 function App() {
   return (
-    <AuthProvider>
-      <UserProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Protected Routes */}
-            <Route element={<PrivateRoute />}>
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <AuthProvider>
+        <UserProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Protected Routes */}
+              <Route element={<PrivateRoute />}>
               <Route path="/" element={
                 <>
                   <Navbar />
@@ -103,6 +105,7 @@ function App() {
         </ThemeProvider>
       </UserProvider>
     </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

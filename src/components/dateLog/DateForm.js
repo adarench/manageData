@@ -208,35 +208,38 @@ const DateForm = ({ onSubmit, initialData = null }) => {
         </Grid>
 
         <Grid item xs={12}>
-          <Autocomplete
-            multiple
-            id="activities"
-            options={COMMON_ACTIVITIES}
-            freeSolo
-            value={formData.activities}
-            onChange={handleCustomActivity}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  variant="outlined"
-                  label={option}
-                  {...getTagProps({ index })}
-                  key={option}
-                />
-              ))
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Activities"
-                placeholder="Add activities"
-                margin="normal"
-                error={!!errors.activities}
-                helperText={errors.activities || 'What did you do together?'}
-                required
-              />
-            )}
-          />
+          <FormControl fullWidth margin="normal" error={!!errors.activities} required>
+            <InputLabel id="activities-label">Activities</InputLabel>
+            <Select
+              labelId="activities-label"
+              id="activities"
+              multiple
+              value={formData.activities || []}
+              onChange={(e) => {
+                const newValues = e.target.value;
+                console.log('Selected activities:', newValues);
+                setFormData({ ...formData, activities: newValues });
+                if (errors.activities) {
+                  setErrors({ ...errors, activities: '' });
+                }
+              }}
+              input={<OutlinedInput label="Activities" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+            >
+              {COMMON_ACTIVITIES.map((activity) => (
+                <MenuItem key={activity} value={activity}>
+                  {activity}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>{errors.activities || 'What did you do together?'}</FormHelperText>
+          </FormControl>
         </Grid>
 
         <Grid item xs={12}>

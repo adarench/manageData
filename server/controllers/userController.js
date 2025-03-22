@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const { User } = require('../models');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT
 const generateToken = (id) => {
@@ -212,11 +215,83 @@ const getLeaderboard = async (req, res) => {
   res.json(leaderboardData);
 };
 
+// @desc    Google OAuth login
+// @route   POST /api/users/google
+// @access  Public
+const googleLogin = async (req, res) => {
+  const { credential } = req.body;
+
+  try {
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    // Get Google user data
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId, picture: imageUrl } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      // Generate a random password for Google users
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      
+      // Create new user if not found
+      user = await User.create({
+        displayName: name,
+        email,
+        password: randomPassword, // Random password, they'll login with Google
+        googleId,
+        avatar: imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`,
+        weeklyQuota: 1,
+        personalGoals: []
+      });
+    } else {
+      // Update Google ID if needed
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    }
+
+    // Generate token
+    const token = generateToken(user.id);
+
+    // Set JWT as HTTP-Only cookie
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    res.json({
+      id: user.id,
+      displayName: user.displayName,
+      email: user.email,
+      weeklyQuota: user.weeklyQuota,
+      personalGoals: user.personalGoals,
+      avatar: user.avatar,
+      dateCount: user.dateCount,
+      newNumbersCount: user.newNumbersCount,
+      completionPercentage: user.completionPercentage,
+      isAnonymous: user.isAnonymous
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(500).json({ message: 'Google login failed: ' + error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   getUserProfile,
   updateUserProfile,
-  getLeaderboard
+  getLeaderboard,
+  googleLogin
 };

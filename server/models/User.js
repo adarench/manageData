@@ -27,6 +27,11 @@ const User = sequelize.define('user', {
       len: [6, 100]
     }
   },
+  googleId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
   weeklyQuota: {
     type: DataTypes.INTEGER,
     defaultValue: 1,

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { loginUser, registerUser, logoutUser, getCurrentUser } from '../services/api';
+import { loginUser, registerUser, logoutUser, getCurrentUser, googleLogin } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -34,6 +34,22 @@ export const AuthProvider = ({ children }) => {
       return user;
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Google login function
+  const loginWithGoogle = async (googleData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const user = await googleLogin(googleData);
+      setCurrentUser(user);
+      return user;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google login failed');
       throw err;
     } finally {
       setLoading(false);
@@ -81,6 +97,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         login,
+        loginWithGoogle,
         register,
         logout,
         updateUser
