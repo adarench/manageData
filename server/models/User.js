@@ -41,8 +41,20 @@ const User = sequelize.define('user', {
     }
   },
   personalGoals: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
-    defaultValue: []
+    type: DataTypes.JSON,
+    defaultValue: [],
+    get() {
+      const value = this.getDataValue('personalGoals');
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+      return [];
+    },
+    set(value) {
+      if (!value) return this.setDataValue('personalGoals', []);
+      if (Array.isArray(value)) return this.setDataValue('personalGoals', value);
+      if (typeof value === 'string') return this.setDataValue('personalGoals', [value]);
+      return this.setDataValue('personalGoals', []);
+    }
   },
   avatar: {
     type: DataTypes.STRING,

@@ -56,10 +56,10 @@ const setupDatabase = async () => {
         console.log('Password: password123');
       }
     } catch (err) {
-      // If error, likely table doesn't exist, so create tables
-      console.log('Database tables may not exist, creating tables...');
-      await sequelize.sync();
-      console.log('Database tables created');
+      // Force recreate tables this one time to apply model changes
+      console.log('Database tables may not exist or need updates, recreating tables...');
+      await sequelize.sync({ force: true });
+      console.log('Database tables created and reset');
       
       // Create a test admin user
       console.log('Creating test admin user...');

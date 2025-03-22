@@ -19,26 +19,51 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    console.log('Registration request received:', req.body);
+    console.log('Registration request received:', JSON.stringify(req.body));
     const { displayName, email, password, weeklyQuota, personalGoals } = req.body;
 
+    // Validate required fields
+    if (!displayName || !email || !password) {
+      console.log('Missing required fields');
+      return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    // Check if user already exists
     const userExists = await User.findOne({ where: { email } });
 
     if (userExists) {
       console.log('User already exists with email:', email);
-      res.status(400);
-      throw new Error('User already exists');
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Make sure personalGoals is properly formatted as an array
+    let formattedGoals;
+    if (personalGoals) {
+      if (Array.isArray(personalGoals)) {
+        formattedGoals = personalGoals;
+      } else if (typeof personalGoals === 'string') {
+        formattedGoals = [personalGoals];
+      } else {
+        formattedGoals = [];
+      }
+    } else {
+      formattedGoals = [];
     }
 
     console.log('Creating new user with email:', email);
-    const user = await User.create({
+    console.log('Personal goals:', formattedGoals);
+    
+    const userData = {
       displayName,
       email,
       password,
       weeklyQuota: weeklyQuota || 1,
-      personalGoals: personalGoals || [],
+      personalGoals: formattedGoals,
       avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff`
-    });
+    };
+    
+    console.log('User data prepared:', JSON.stringify(userData));
+    const user = await User.create(userData);
     console.log('User created successfully:', user.id);
 
   if (user) {
