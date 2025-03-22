@@ -1,25 +1,45 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// Print database connection debug info
+// Debug logging
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('DATABASE_URL available:', !!process.env.DATABASE_URL);
+if (process.env.DATABASE_URL) {
+  // Print first few chars for debugging while hiding credentials
+  const safeUrl = process.env.DATABASE_URL.substring(0, 20) + '...';
+  console.log('DATABASE_URL preview:', safeUrl);
+}
 
-// Always use SSL in Railway environment
-const sequelize = new Sequelize(
-  process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/dating_app',
-  {
-    dialect: 'postgres',
-    dialectOptions: {
-      // Always use SSL when DATABASE_URL is provided (Railway case)
-      ssl: process.env.DATABASE_URL ? {
-        require: true,
-        rejectUnauthorized: false
-      } : false
-    },
-    logging: false
+let sequelize;
+
+try {
+  // Explicitly create a new connection using DATABASE_URL
+  if (process.env.DATABASE_URL) {
+    console.log('Creating Sequelize instance with DATABASE_URL');
+    
+    sequelize = new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
+      logging: false
+    });
+  } else {
+    console.log('Creating Sequelize instance with local config');
+    
+    sequelize = new Sequelize('dating_app', 'postgres', 'postgres', {
+      host: 'localhost',
+      dialect: 'postgres',
+      logging: false
+    });
   }
-);
+} catch (error) {
+  console.error('Failed to create Sequelize instance:', error);
+  throw error;
+}
 
 const connectDB = async () => {
   try {

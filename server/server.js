@@ -25,7 +25,25 @@ if (process.env.RAILWAY_SERVICE_ID) {
 console.log(`Setting up server in ${process.env.NODE_ENV || 'development'} mode`);
 
 // Connect to database
-connectDB();
+const setupDatabase = async () => {
+  try {
+    // First try to connect
+    await connectDB();
+    
+    // Force sync tables in production for first deployment
+    if (process.env.RAILWAY_SERVICE_ID) {
+      const { sequelize } = require('./config/db');
+      console.log('Forcing sync of database tables for first deployment...');
+      await sequelize.sync({ force: true });
+      console.log('Database tables synchronized successfully');
+    }
+  } catch (error) {
+    console.error('Database setup failed:', error);
+    process.exit(1);
+  }
+};
+
+setupDatabase();
 
 const app = express();
 
