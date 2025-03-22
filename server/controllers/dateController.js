@@ -5,10 +5,13 @@ const { Op } = require('sequelize');
 // @route   POST /api/dates
 // @access  Private
 const addDate = async (req, res) => {
+  // Extract fields, handling both formats
   const { 
-    contactId, 
-    contactName, 
-    dateTime, 
+    contactId,
+    contactName,
+    name,  // Support old field name
+    dateTime,
+    date,  // Support old field name
     location, 
     notes, 
     rating, 
@@ -19,6 +22,10 @@ const addDate = async (req, res) => {
     followUpReminder,
     isNewNumber
   } = req.body;
+  
+  // Normalize field names
+  const normalizedContactName = contactName || name;
+  const normalizedDateTime = dateTime || date;
 
   // Find or create contact
   let contact;
@@ -31,11 +38,11 @@ const addDate = async (req, res) => {
       res.status(404);
       throw new Error('Contact not found');
     }
-  } else if (contactName) {
+  } else if (normalizedContactName) {
     // Try to find existing contact with this name for this user
     contact = await Contact.findOne({
       where: { 
-        name: contactName,
+        name: normalizedContactName,
         userId: req.user.id
       }
     });
@@ -43,7 +50,7 @@ const addDate = async (req, res) => {
     // If not found, create new contact
     if (!contact) {
       contact = await Contact.create({
-        name: contactName,
+        name: normalizedContactName,
         userId: req.user.id,
         status: 'new'
       });
@@ -64,10 +71,10 @@ const addDate = async (req, res) => {
   const dateNumber = previousDates + 1;
 
   // Create the date
-  const date = await Date.create({
+  const newDate = await Date.create({
     contactId: contact.id,
     userId: req.user.id,
-    dateTime,
+    dateTime: normalizedDateTime,
     location,
     notes,
     rating,
@@ -85,7 +92,7 @@ const addDate = async (req, res) => {
   
   user.dateCount += 1;
   
-  if (date.isNewNumber) {
+  if (newDate.isNewNumber) {
     user.newNumbersCount += 1;
   }
   
@@ -132,7 +139,7 @@ const addDate = async (req, res) => {
       }
     });
     
-    const totalRating = contactDates.reduce((sum, date) => sum + date.rating, 0);
+    const totalRating = contactDates.reduce((sum, d) => sum + d.rating, 0);
     contact.avgRating = totalRating / contactDates.length;
     
     // Update contact status based on latest date
@@ -149,7 +156,7 @@ const addDate = async (req, res) => {
   
   await user.save();
 
-  res.status(201).json(date);
+  res.status(201).json(newDate);
 };
 
 // @desc    Get user's dates

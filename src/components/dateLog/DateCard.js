@@ -35,7 +35,7 @@ const DateCard = ({ date, onEdit, onDelete }) => {
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start">
           <Typography variant="h6" gutterBottom>
-            {date.name}
+            {date.contactName || date.name}
           </Typography>
           <IconButton aria-label="more options" size="small" onClick={handleMenuClick}>
             <MoreVertIcon />
@@ -52,7 +52,7 @@ const DateCard = ({ date, onEdit, onDelete }) => {
         
         <Box display="flex" alignItems="center" mb={1}>
           <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
-            {format(new Date(date.date), 'MMMM d, yyyy')}
+            {format(new Date(date.dateTime || date.date), 'MMMM d, yyyy')}
           </Typography>
           <Chip 
             size="small" 

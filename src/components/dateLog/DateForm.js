@@ -52,8 +52,8 @@ const COMMON_ACTIVITIES = [
 
 const DateForm = ({ onSubmit, initialData = null }) => {
   const [formData, setFormData] = useState(initialData || {
-    name: '',
-    date: new Date(),
+    contactName: '',
+    dateTime: new Date(),
     type: '',
     activities: [],
     dateNumber: 1,
@@ -73,9 +73,9 @@ const DateForm = ({ onSubmit, initialData = null }) => {
   };
 
   const handleDateChange = (date) => {
-    setFormData({ ...formData, date });
-    if (errors.date) {
-      setErrors({ ...errors, date: '' });
+    setFormData({ ...formData, dateTime: date });
+    if (errors.dateTime) {
+      setErrors({ ...errors, dateTime: '' });
     }
   };
 
@@ -106,8 +106,8 @@ const DateForm = ({ onSubmit, initialData = null }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.date) newErrors.date = 'Date is required';
+    if (!formData.contactName.trim()) newErrors.contactName = 'Name is required';
+    if (!formData.dateTime) newErrors.dateTime = 'Date is required';
     if (!formData.type.trim()) newErrors.type = 'Date type is required';
     if (!formData.activities.length) newErrors.activities = 'At least one activity is required';
 
@@ -129,11 +129,11 @@ const DateForm = ({ onSubmit, initialData = null }) => {
           <TextField
             fullWidth
             label="Name"
-            name="name"
-            value={formData.name}
+            name="contactName"
+            value={formData.contactName}
             onChange={handleChange}
-            error={!!errors.name}
-            helperText={errors.name}
+            error={!!errors.contactName}
+            helperText={errors.contactName}
             margin="normal"
             required
           />
@@ -143,15 +143,15 @@ const DateForm = ({ onSubmit, initialData = null }) => {
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
               label="Date"
-              value={formData.date}
+              value={formData.dateTime}
               onChange={handleDateChange}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   fullWidth
                   margin="normal"
-                  error={!!errors.date}
-                  helperText={errors.date}
+                  error={!!errors.dateTime}
+                  helperText={errors.dateTime}
                   required
                 />
               )}

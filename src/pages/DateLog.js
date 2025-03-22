@@ -39,7 +39,7 @@ const DateLog = () => {
   };
   
   // Sort dates by date (newest first)
-  const sortedDates = [...dates].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedDates = [...dates].sort((a, b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>

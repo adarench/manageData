@@ -50,7 +50,15 @@ export const getDateById = async (id) => {
 };
 
 export const addDate = async (dateData) => {
-  const response = await api.post('/dates', dateData);
+  // Make sure we have the right field names for the backend
+  const formattedData = {
+    ...dateData,
+    contactName: dateData.contactName,
+    dateTime: dateData.dateTime,
+    // Handle any other field transformations here
+  };
+  
+  const response = await api.post('/dates', formattedData);
   return response.data;
 };
 
